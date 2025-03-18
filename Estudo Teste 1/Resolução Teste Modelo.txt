@@ -1,0 +1,114 @@
+1.
+SELECT nome, lotacao, morada
+FROM Recintos
+WHERE lotacao > 5000
+ORDER BY lotacao DESC;
+
+2.
+SELECT R.cod, R.designacao AS regiao, R.nut1, D.designacao AS distrito
+FROM Regioes R
+JOIN Distritos D ON R.cod = D.regiao
+ORDER BY R.cod, D.designacao;
+
+3.
+SELECT R.nome, R.morada, R.lotacao, T.descricao
+FROM Recintos R
+JOIN Tipos T ON R.tipo = T.tipo
+JOIN Concelhos C ON R.concelho = C.cod
+WHERE C.designacao = 'Gondomar'
+ORDER BY R.nome;
+
+4.
+SELECT R.nome, R.lotacao, T.descricao
+FROM Recintos R
+JOIN Tipos T ON R.tipo = T.tipo
+WHERE T.descricao like '%multiusos%'
+ORDER BY R.nome;
+
+5.
+SELECT R.nome, R.lotacao
+FROM Recintos R
+JOIN Usos U ON R.id = U.id
+JOIN Atividades A ON U.ref = A.ref
+WHERE A.atividade = 'circo'
+ORDER BY R.lotacao DESC;
+
+6.
+SELECT D.designacao, COUNT(R.nome) AS quant
+FROM Distritos D
+JOIN Concelhos C ON D.cod = C.distrito
+JOIN Recintos R ON C.cod = R.concelho
+GROUP BY D.designacao
+ORDER BY D.designacao;
+
+7. (MAL)
+SELECT COUNT(C.cod) AS num_concelhos
+FROM Concelhos C
+JOIN Recintos R ON C.cod = R.concelho
+JOIN Usos U ON R.id = U.id
+JOIN Atividades A ON U.ref = A.ref
+WHERE A.atividade IS NULL OR A.atividade != 'cinema';
+
+FEITA PELO STOR:
+select count(*) num_concelhos
+from concelhos
+where cod not in
+    (select concelho
+    from recintos natural join usos natural join atividades
+    where atividade='cinema');
+
+8.
+SELECT D.cod, D.designacao
+FROM Distritos D
+JOIN Concelhos C ON D.cod = C.distrito
+LEFT JOIN Recintos R ON C.cod = R.concelho
+GROUP BY D.cod, D.designacao
+HAVING COUNT(DISTINCT C.cod) = COUNT(DISTINCT R.concelho)
+ORDER BY D.cod;
+
+A cláusula HAVING é usada após o GROUP BY e é semelhante a uma cláusula WHERE, mas é aplicada após a agregação.
+Aqui, estamos filtrando os resultados para incluir apenas os distritos nos quais o número de concelhos (COUNT(DISTINCT C.codigo)) é igual ao número de 
+concelhos com recintos (COUNT(DISTINCT R.id_concelho)). Isso significa que todos os concelhos têm recintos registados.
+
+O LEFT JOIN é utilizado aqui para garantir que todos os distritos e concelhos sejam incluídos no resultado, independentemente de terem recintos registados ou não. 
+Se um concelho não tiver recintos associados, as colunas correspondentes à tabela Recintos terão valores nulos. Isso é útil quando queremos incluir todas as 
+informações de uma tabela (à esquerda) e apenas as correspondências da tabela à direita.
+
+9. (MAL)
+SELECT R.id, R.nome, T.descricao
+FROM Recintos R
+JOIN Tipos T ON R.tipo = T.tipo 
+LEFT JOIN Usos U ON R.id = U.id
+LEFT JOIN Atividades A ON U.ref = A.ref AND A.atividade = 'teatro'
+WHERE T.descricao LIKE '%teatro%' AND A.ref IS NULL
+ORDER BY R.id;
+
+FEITA PELO STOR:
+select r.id, r.nome, t.descricao 
+from recintos r natural join tipos t
+where t.descricao like '%teatro%'
+and r.id not in
+    (select id
+    from usos natural join atividades
+    where atividade='teatro')
+order by id;
+
+10. FEITA PELO STOR:
+select c.cod, c.designacao, a.atividade, count(*) nr_recintos
+from concelhos c 
+join recintos r on r.concelho=c.cod
+join usos u on r.id=u.id
+join atividades a on u.ref=a.ref
+group by c.cod, c.designacao, u.ref, a.atividade
+having count(*) >=5 and (c.cod, count(*)) in 
+	(
+    select x.cod, max(x.n)
+    from (
+          select c1.cod, u1.ref, count(*) n
+          from concelhos c1 join recintos r1 on r1.concelho=c1.cod
+               join usos u1 on r1.id=u1.id
+          group by c1.cod, u1.ref
+		  ) x
+    group by x.cod
+	)
+order by cod;
