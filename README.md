@@ -1,18 +1,16 @@
-# 📚 Databases — Practical Exam Study Materials  
+# 💻 Data Bases — FCUP
 
-This repository contains study materials and summaries for the **Databases (CC2005)** course at **FCUP**.  
-It is aimed at preparing for the **practical exam**, covering key topics, SQL examples, and exercises.  
+![SQLite](https://img.shields.io/badge/SQLite-%2307405e?style=for-the-badge&logo=sqlite&logoColor=white)  
+![FCUP](https://img.shields.io/badge/Faculty-FCUP-blue?style=for-the-badge)  
+![Year](https://img.shields.io/badge/Year-2nd%20Year%20(1st%20Semester)-purple?style=for-the-badge)  
 
----
-
-## 📅 Context
-- **Course:** Databases (CC2005)  
-- **Degree:** Bachelor's in Computer Science  
-- **Year/Semester:** 2nd Year, 1st Semester  
+**Study materials and summaries from the Databases course @ FCUP.**  
+Developed in Java during the first semester of the second year of the Bachelor's Degree in Computer Science.  
 
 ---
 
-## 🛠️ Topics Covered
+
+## 📚 Topics Covered
 - SQL basics and advanced queries  
 - Joins, subqueries, and views  
 - Normalization  
